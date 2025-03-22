@@ -127,6 +127,10 @@ class FlightLogService extends ChangeNotifier {
           _currentFlightLog!.id,
         );
 
+        //here start
+        _currentFlightLog = null;
+
+        //here end
         notifyListeners();
         return true;
       }
