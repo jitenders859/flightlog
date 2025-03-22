@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "690223569339",
+    "project_id": "flightlogger-43b87",
+    "storage_bucket": "flightlogger-43b87.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:690223569339:android:b71089b273bee44ab44c9e",
+        "android_client_info": {
+          "package_name": "com.flight.logger"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "690223569339-3498sejeadplacbdb3833lbssi9t18f2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBOR7M97Z3Nk8TCNMsfnEefIozcYQgrqM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "690223569339-3498sejeadplacbdb3833lbssi9t18f2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
