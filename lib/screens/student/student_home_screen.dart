@@ -640,174 +640,185 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
   Widget _buildHistoryPage() {
     final flightLogService = Provider.of<FlightLogService>(context);
 
-    return FutureBuilder<List<FlightLogModel>>(
-      future: flightLogService.getStudentFlightHistory(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    return SizedBox(
+      height: MediaQuery.sizeOf(context).height,
+      width: MediaQuery.sizeOf(context).width,
+      child: SingleChildScrollView(
+        child: FutureBuilder<List<FlightLogModel>>(
+          future: flightLogService.getStudentFlightHistory(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-        if (snapshot.hasError) {
-          return Center(
-            child: Text(
-              'Error loading flight history: ${snapshot.error}',
-              style: const TextStyle(color: AppColors.error),
-            ),
-          );
-        }
-
-        final flightLogs = snapshot.data ?? [];
-
-        if (flightLogs.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.history,
-                  size: 64,
-                  color: AppColors.textSecondary.withOpacity(0.5),
+            if (snapshot.hasError) {
+              return Center(
+                child: Text(
+                  'Error loading flight history: ${snapshot.error}',
+                  style: const TextStyle(color: AppColors.error),
                 ),
-                const SizedBox(height: 16),
-                const Text(
-                  'No Flight History',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Your completed flights will appear here.',
-                  style: TextStyle(color: AppColors.textSecondary),
-                ),
-              ],
-            ),
-          );
-        }
+              );
+            }
 
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: flightLogs.length,
-          itemBuilder: (context, index) {
-            final flightLog = flightLogs[index];
-            final isActive = flightLog.status == 'in-progress';
+            final flightLogs = snapshot.data ?? [];
 
-            return Card(
-              margin: const EdgeInsets.only(bottom: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: isActive ? 4 : 2,
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) =>
-                              FlightDetailScreen(flightLogId: flightLog.id),
+            if (flightLogs.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.history,
+                      size: 64,
+                      color: AppColors.textSecondary.withOpacity(0.5),
                     ),
-                  );
-                },
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  decoration: BoxDecoration(
+                    const SizedBox(height: 16),
+                    const Text(
+                      'No Flight History',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Your completed flights will appear here.',
+                      style: TextStyle(color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              padding: const EdgeInsets.all(16),
+              itemCount: flightLogs.length,
+              itemBuilder: (context, index) {
+                final flightLog = flightLogs[index];
+                final isActive = flightLog.status == 'in-progress';
+
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
-                    border:
-                        isActive
-                            ? Border.all(color: AppColors.primary, width: 2)
-                            : null,
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  elevation: isActive ? 4 : 2,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) =>
+                                  FlightDetailScreen(flightLogId: flightLog.id),
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border:
+                            isActive
+                                ? Border.all(color: AppColors.primary, width: 2)
+                                : null,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              DateFormat(
-                                'MMM dd, yyyy',
-                              ).format(flightLog.startTime),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color:
-                                    isActive
-                                        ? AppColors.primary.withOpacity(0.1)
-                                        : AppColors.success.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                isActive ? 'In Progress' : 'Completed',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color:
-                                      isActive
-                                          ? AppColors.primary
-                                          : AppColors.success,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  DateFormat(
+                                    'MMM dd, yyyy',
+                                  ).format(flightLog.startTime),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
                                 ),
-                              ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color:
+                                        isActive
+                                            ? AppColors.primary.withOpacity(0.1)
+                                            : AppColors.success.withOpacity(
+                                              0.1,
+                                            ),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    isActive ? 'In Progress' : 'Completed',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color:
+                                          isActive
+                                              ? AppColors.primary
+                                              : AppColors.success,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                _buildFlightInfoItem(
+                                  icon: Icons.access_time,
+                                  title: 'Start Time',
+                                  value: DateFormat(
+                                    'hh:mm a',
+                                  ).format(flightLog.startTime),
+                                ),
+                                const SizedBox(width: 24),
+                                _buildFlightInfoItem(
+                                  icon: Icons.timer,
+                                  title: 'Duration',
+                                  value: flightLog.durationString,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                _buildFlightInfoItem(
+                                  icon: Icons.place,
+                                  title: 'Locations',
+                                  value:
+                                      '${flightLog.flightPath.length} points',
+                                ),
+                                const SizedBox(width: 24),
+                                if (flightLog.notes != null &&
+                                    flightLog.notes!.isNotEmpty)
+                                  _buildFlightInfoItem(
+                                    icon: Icons.notes,
+                                    title: 'Notes',
+                                    value: 'Available',
+                                  ),
+                              ],
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            _buildFlightInfoItem(
-                              icon: Icons.access_time,
-                              title: 'Start Time',
-                              value: DateFormat(
-                                'hh:mm a',
-                              ).format(flightLog.startTime),
-                            ),
-                            const SizedBox(width: 24),
-                            _buildFlightInfoItem(
-                              icon: Icons.timer,
-                              title: 'Duration',
-                              value: flightLog.durationString,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            _buildFlightInfoItem(
-                              icon: Icons.place,
-                              title: 'Locations',
-                              value: '${flightLog.flightPath.length} points',
-                            ),
-                            const SizedBox(width: 24),
-                            if (flightLog.notes != null &&
-                                flightLog.notes!.isNotEmpty)
-                              _buildFlightInfoItem(
-                                icon: Icons.notes,
-                                title: 'Notes',
-                                value: 'Available',
-                              ),
-                          ],
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             );
           },
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -845,166 +856,168 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          // Profile Card
-          Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            // Profile Card
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    // Profile Image
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundColor: AppColors.primary,
+                      child: Text(
+                        user.firstName[0] + user.lastName[0],
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // User Name
+                    Text(
+                      user.fullName,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+
+                    // User Email
+                    Text(
+                      user.email,
+                      style: const TextStyle(color: AppColors.textSecondary),
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Role Badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.studentColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Text(
+                        'Student',
+                        style: TextStyle(
+                          color: AppColors.studentColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Edit Profile Button
+                    CustomButton(
+                      text: 'Edit Profile',
+                      icon: Icons.edit,
+                      isOutlined: true,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ProfileScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
+
+            const SizedBox(height: 24),
+
+            // App Settings
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Settings',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            // Settings List
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Column(
                 children: [
-                  // Profile Image
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundColor: AppColors.primary,
-                    child: Text(
-                      user.firstName[0] + user.lastName[0],
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
+                  _buildSettingsItem(
+                    icon: Icons.notifications,
+                    title: 'Notifications',
+                    subtitle: 'Manage notification settings',
+                    onTap: () {
+                      // TODO: Navigate to notification settings
+                    },
                   ),
-                  const SizedBox(height: 16),
-
-                  // User Name
-                  Text(
-                    user.fullName,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  const Divider(height: 1),
+                  _buildSettingsItem(
+                    icon: Icons.security,
+                    title: 'Privacy & Security',
+                    subtitle: 'Manage your data and security settings',
+                    onTap: () {
+                      // TODO: Navigate to privacy settings
+                    },
                   ),
-                  const SizedBox(height: 4),
-
-                  // User Email
-                  Text(
-                    user.email,
-                    style: const TextStyle(color: AppColors.textSecondary),
+                  const Divider(height: 1),
+                  _buildSettingsItem(
+                    icon: Icons.help_outline,
+                    title: 'Help & Support',
+                    subtitle: 'Contact support or view FAQs',
+                    onTap: () {
+                      // TODO: Navigate to help & support
+                    },
                   ),
-                  const SizedBox(height: 8),
-
-                  // Role Badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.studentColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      'Student',
-                      style: TextStyle(
-                        color: AppColors.studentColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Edit Profile Button
-                  CustomButton(
-                    text: 'Edit Profile',
-                    icon: Icons.edit,
-                    isOutlined: true,
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ProfileScreen(),
-                        ),
-                      );
+                  const Divider(height: 1),
+                  _buildSettingsItem(
+                    icon: Icons.info_outline,
+                    title: 'About',
+                    subtitle: 'App version and information',
+                    onTap: () {
+                      // TODO: Show about dialog
                     },
                   ),
                 ],
               ),
             ),
-          ),
 
-          const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
-          // App Settings
-          const Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'Settings',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
+            // Logout Button
+            CustomButton(
+              text: 'Logout',
+              icon: Icons.logout,
+              backgroundColor: Colors.red,
+              onPressed: _signOut,
             ),
-          ),
-
-          const SizedBox(height: 8),
-
-          // Settings List
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              children: [
-                _buildSettingsItem(
-                  icon: Icons.notifications,
-                  title: 'Notifications',
-                  subtitle: 'Manage notification settings',
-                  onTap: () {
-                    // TODO: Navigate to notification settings
-                  },
-                ),
-                const Divider(height: 1),
-                _buildSettingsItem(
-                  icon: Icons.security,
-                  title: 'Privacy & Security',
-                  subtitle: 'Manage your data and security settings',
-                  onTap: () {
-                    // TODO: Navigate to privacy settings
-                  },
-                ),
-                const Divider(height: 1),
-                _buildSettingsItem(
-                  icon: Icons.help_outline,
-                  title: 'Help & Support',
-                  subtitle: 'Contact support or view FAQs',
-                  onTap: () {
-                    // TODO: Navigate to help & support
-                  },
-                ),
-                const Divider(height: 1),
-                _buildSettingsItem(
-                  icon: Icons.info_outline,
-                  title: 'About',
-                  subtitle: 'App version and information',
-                  onTap: () {
-                    // TODO: Show about dialog
-                  },
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          // Logout Button
-          CustomButton(
-            text: 'Logout',
-            icon: Icons.logout,
-            backgroundColor: Colors.red,
-            onPressed: _signOut,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
