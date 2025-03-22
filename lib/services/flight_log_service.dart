@@ -36,6 +36,19 @@ class FlightLogService extends ChangeNotifier {
        _locationService = locationService,
        _notificationService = notificationService;
 
+  void updateDependencies({
+    required DatabaseService databaseService,
+    required LocationService locationService,
+    required NotificationService notificationService,
+  }) {
+    databaseService = databaseService;
+    locationService = locationService;
+    notificationService = notificationService;
+
+    // Optional: If your service reacts to changes
+    // notifyListeners();
+  }
+
   Future<void> initialize(String userId) async {
     _currentUserId = userId;
     await _checkForActiveFlightLog();

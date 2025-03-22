@@ -87,7 +87,41 @@ class MyApp extends StatelessWidget {
         // Notification Service
         ChangeNotifierProvider(create: (_) => NotificationService()),
 
-        // Flight Log Service - depends on other services
+        // // Flight Log Service - depends on other services
+        // ChangeNotifierProxyProvider3<
+        //   DatabaseService,
+        //   LocationService,
+        //   NotificationService,
+        //   FlightLogService
+        // >(
+        //   create:
+        //       (context) => FlightLogService(
+        //         databaseService: Provider.of<DatabaseService>(
+        //           context,
+        //           listen: false,
+        //         ),
+        //         locationService: Provider.of<LocationService>(
+        //           context,
+        //           listen: false,
+        //         ),
+        //         notificationService: Provider.of<NotificationService>(
+        //           context,
+        //           listen: false,
+        //         ),
+        //       ),
+        //   update:
+        //       (
+        //         context,
+        //         databaseService,
+        //         locationService,
+        //         notificationService,
+        //         previous,
+        //       ) => FlightLogService(
+        //         databaseService: databaseService,
+        //         locationService: locationService,
+        //         notificationService: notificationService,
+        //       ),
+        // ),
         ChangeNotifierProxyProvider3<
           DatabaseService,
           LocationService,
@@ -109,18 +143,28 @@ class MyApp extends StatelessWidget {
                   listen: false,
                 ),
               ),
-          update:
-              (
-                context,
-                databaseService,
-                locationService,
-                notificationService,
-                previous,
-              ) => FlightLogService(
+          update: (
+            context,
+            databaseService,
+            locationService,
+            notificationService,
+            previous,
+          ) {
+            if (previous != null) {
+              previous.updateDependencies(
                 databaseService: databaseService,
                 locationService: locationService,
                 notificationService: notificationService,
-              ),
+              );
+              return previous;
+            }
+
+            return FlightLogService(
+              databaseService: databaseService,
+              locationService: locationService,
+              notificationService: notificationService,
+            );
+          },
         ),
       ],
       child: MaterialApp(

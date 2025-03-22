@@ -199,397 +199,402 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     final flightLogService = Provider.of<FlightLogService>(context);
     final locationService = Provider.of<LocationService>(context);
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Location Error Message
-          if (_locationErrorMessage != null)
-            Container(
-              padding: const EdgeInsets.all(12),
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: AppColors.error.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.error),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.error_outline, color: AppColors.error),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Location Error',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.error,
-                          ),
-                        ),
-                        Text(
-                          _locationErrorMessage!,
-                          style: const TextStyle(color: AppColors.error),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.refresh, color: AppColors.error),
-                    onPressed: _checkLocationPermissions,
-                  ),
-                ],
-              ),
-            ),
-
-          // Current Flight Status Card
-          if (flightLogService.hasActiveFlightLog)
-            Card(
-              margin: const EdgeInsets.only(bottom: 16),
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Container(
-                padding: const EdgeInsets.all(16),
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Location Error Message
+            if (_locationErrorMessage != null)
+              Container(
+                padding: const EdgeInsets.all(12),
+                margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppColors.primary, AppColors.primaryDark],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  color: AppColors.error.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.error),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.error_outline, color: AppColors.error),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Location Error',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.error,
+                            ),
+                          ),
+                          Text(
+                            _locationErrorMessage!,
+                            style: const TextStyle(color: AppColors.error),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.refresh, color: AppColors.error),
+                      onPressed: _checkLocationPermissions,
+                    ),
+                  ],
+                ),
+              ),
+
+            // Current Flight Status Card
+            if (flightLogService.hasActiveFlightLog)
+              Card(
+                margin: const EdgeInsets.only(bottom: 16),
+                elevation: 4,
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Active Flight',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AppColors.primary, AppColors.primaryDark],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Active Flight',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: const BoxDecoration(
+                                    color: AppColors.success,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                const Text(
+                                  'In Progress',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          const Icon(Icons.access_time, color: Colors.white70),
+                          const SizedBox(width: 8),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Container(
-                                width: 8,
-                                height: 8,
-                                decoration: const BoxDecoration(
-                                  color: AppColors.success,
-                                  shape: BoxShape.circle,
+                              const Text(
+                                'Started',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
                                 ),
                               ),
-                              const SizedBox(width: 4),
-                              const Text(
-                                'In Progress',
-                                style: TextStyle(
+                              Text(
+                                DateFormat('MMM dd, yyyy • hh:mm a').format(
+                                  flightLogService.currentFlightLog!.startTime,
+                                ),
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        const Icon(Icons.access_time, color: Colors.white70),
-                        const SizedBox(width: 8),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Started',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.timer_outlined,
+                            color: Colors.white70,
+                          ),
+                          const SizedBox(width: 8),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Duration',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
                               ),
-                            ),
-                            Text(
-                              DateFormat('MMM dd, yyyy • hh:mm a').format(
-                                flightLogService.currentFlightLog!.startTime,
+                              Text(
+                                _formatDuration(
+                                  flightLogService.currentFlightDuration,
+                                ),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(Icons.timer_outlined, color: Colors.white70),
-                        const SizedBox(width: 8),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Duration',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
-                              ),
-                            ),
-                            Text(
-                              _formatDuration(
-                                flightLogService.currentFlightDuration,
-                              ),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                            ],
+                          ),
+                        ],
+                      ),
 
-                    // Show location info if available
-                    if (locationService.currentPosition != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.location_on_outlined,
-                              color: Colors.white70,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Column(
+                      // Show location info if available
+                      if (locationService.currentPosition != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.location_on_outlined,
+                                color: Colors.white70,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Current Location',
+                                      style: TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${locationService.currentPosition!.latitude.toStringAsFixed(6)}, ${locationService.currentPosition!.longitude.toStringAsFixed(6)}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      // Show distance from school if available
+                      if (locationService.distanceFromSchool != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.school_outlined,
+                                color: Colors.white70,
+                              ),
+                              const SizedBox(width: 8),
+                              Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Text(
-                                    'Current Location',
+                                    'Distance from School',
                                     style: TextStyle(
                                       color: Colors.white70,
                                       fontSize: 12,
                                     ),
                                   ),
                                   Text(
-                                    '${locationService.currentPosition!.latitude.toStringAsFixed(6)}, ${locationService.currentPosition!.longitude.toStringAsFixed(6)}',
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    LocationUtils.formatDistance(
+                                      locationService.distanceFromSchool!,
+                                    ),
+                                    style: TextStyle(
+                                      color:
+                                          locationService.isNearSchool
+                                              ? Colors.white
+                                              : AppColors.warning,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                    // Show distance from school if available
-                    if (locationService.distanceFromSchool != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.school_outlined,
-                              color: Colors.white70,
-                            ),
-                            const SizedBox(width: 8),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Distance from School',
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                Text(
-                                  LocationUtils.formatDistance(
-                                    locationService.distanceFromSchool!,
-                                  ),
-                                  style: TextStyle(
-                                    color:
-                                        locationService.isNearSchool
-                                            ? Colors.white
-                                            : AppColors.warning,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-
-                    const SizedBox(height: 16),
-
-                    // End Flight Button
-                    CustomButton(
-                      text: 'End Flight',
-                      backgroundColor: Colors.white,
-                      textColor: AppColors.primary,
-                      icon: Icons.flight_land,
-                      onPressed: _endFlight,
-                      borderRadius: 30,
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    // View Details Button
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => FlightDetailScreen(
-                                  flightLogId:
-                                      flightLogService.currentFlightLog!.id,
-                                ),
+                            ],
                           ),
-                        );
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.white,
-                      ),
-                      child: const Text('View Details'),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          else
-            // No Active Flight
-            Card(
-              margin: const EdgeInsets.only(bottom: 16),
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.flight_takeoff,
-                      size: 60,
-                      color: AppColors.primary.withOpacity(0.7),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'No Active Flight',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Start a new flight to begin tracking your location and flight time.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.textSecondary),
-                    ),
-                    const SizedBox(height: 24),
-                    CustomButton(
-                      text: 'Start New Flight',
-                      icon: Icons.flight_takeoff,
-                      onPressed: _startFlight,
-                      isLoading: false,
-                      borderRadius: 30,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-          // Location Status Card
-          if (locationService.currentPosition != null)
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Current Location',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildLocationInfoRow(
-                      icon: Icons.location_on,
-                      title: 'Coordinates',
-                      value:
-                          '${locationService.currentPosition!.latitude.toStringAsFixed(6)}, ${locationService.currentPosition!.longitude.toStringAsFixed(6)}',
-                    ),
-                    if (locationService.distanceFromSchool != null)
-                      _buildLocationInfoRow(
-                        icon: Icons.school,
-                        title: 'Distance from School',
-                        value: LocationUtils.formatDistance(
-                          locationService.distanceFromSchool!,
                         ),
-                        valueColor:
-                            locationService.isNearSchool
-                                ? AppColors.success
-                                : AppColors.warning,
+
+                      const SizedBox(height: 16),
+
+                      // End Flight Button
+                      CustomButton(
+                        text: 'End Flight',
+                        backgroundColor: Colors.white,
+                        textColor: AppColors.primary,
+                        icon: Icons.flight_land,
+                        onPressed: _endFlight,
+                        borderRadius: 30,
                       ),
-                    _buildLocationInfoRow(
-                      icon: Icons.speed,
-                      title: 'Speed',
-                      value:
-                          '${(locationService.currentPosition!.speed * 3.6).toStringAsFixed(1)} km/h',
-                    ),
-                    if (locationService.currentPosition!.altitude != 0)
-                      _buildLocationInfoRow(
-                        icon: Icons.height,
-                        title: 'Altitude',
-                        value:
-                            '${locationService.currentPosition!.altitude!.toStringAsFixed(1)} m',
-                      ),
-                    const SizedBox(height: 8),
-                    Center(
-                      child: TextButton.icon(
-                        onPressed: () async {
-                          await locationService.getCurrentPosition();
-                          setState(() {});
+
+                      const SizedBox(height: 8),
+
+                      // View Details Button
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => FlightDetailScreen(
+                                    flightLogId:
+                                        flightLogService.currentFlightLog!.id,
+                                  ),
+                            ),
+                          );
                         },
-                        icon: const Icon(Icons.refresh),
-                        label: const Text('Refresh'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Text('View Details'),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                ),
+              )
+            else
+              // No Active Flight
+              Card(
+                margin: const EdgeInsets.only(bottom: 16),
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.flight_takeoff,
+                        size: 60,
+                        color: AppColors.primary.withOpacity(0.7),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'No Active Flight',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Start a new flight to begin tracking your location and flight time.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: AppColors.textSecondary),
+                      ),
+                      const SizedBox(height: 24),
+                      CustomButton(
+                        text: 'Start New Flight',
+                        icon: Icons.flight_takeoff,
+                        onPressed: _startFlight,
+                        isLoading: false,
+                        borderRadius: 30,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-        ],
+
+            // Location Status Card
+            if (locationService.currentPosition != null)
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Current Location',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildLocationInfoRow(
+                        icon: Icons.location_on,
+                        title: 'Coordinates',
+                        value:
+                            '${locationService.currentPosition!.latitude.toStringAsFixed(6)}, ${locationService.currentPosition!.longitude.toStringAsFixed(6)}',
+                      ),
+                      if (locationService.distanceFromSchool != null)
+                        _buildLocationInfoRow(
+                          icon: Icons.school,
+                          title: 'Distance from School',
+                          value: LocationUtils.formatDistance(
+                            locationService.distanceFromSchool!,
+                          ),
+                          valueColor:
+                              locationService.isNearSchool
+                                  ? AppColors.success
+                                  : AppColors.warning,
+                        ),
+                      _buildLocationInfoRow(
+                        icon: Icons.speed,
+                        title: 'Speed',
+                        value:
+                            '${(locationService.currentPosition!.speed * 3.6).toStringAsFixed(1)} km/h',
+                      ),
+                      if (locationService.currentPosition!.altitude != 0)
+                        _buildLocationInfoRow(
+                          icon: Icons.height,
+                          title: 'Altitude',
+                          value:
+                              '${locationService.currentPosition!.altitude!.toStringAsFixed(1)} m',
+                        ),
+                      const SizedBox(height: 8),
+                      Center(
+                        child: TextButton.icon(
+                          onPressed: () async {
+                            await locationService.getCurrentPosition();
+                            setState(() {});
+                          },
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Refresh'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
