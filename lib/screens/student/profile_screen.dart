@@ -5,7 +5,6 @@ import '../../widgets/custom_button.dart';
 import '../../validators.dart';
 import 'package:provider/provider.dart';
 
-
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
 
@@ -21,17 +20,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isLoading = false;
   String? _errorMessage;
   String? _successMessage;
-  
+
   @override
   void initState() {
     super.initState();
     _initializeControllers();
   }
-  
+
   void _initializeControllers() {
     final authService = Provider.of<AuthService>(context, listen: false);
     final user = authService.currentUser;
-    
+
     if (user != null) {
       _firstNameController = TextEditingController(text: user.firstName);
       _lastNameController = TextEditingController(text: user.lastName);
@@ -42,7 +41,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _phoneController = TextEditingController();
     }
   }
-  
+
   @override
   void dispose() {
     _firstNameController.dispose();
@@ -50,34 +49,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _phoneController.dispose();
     super.dispose();
   }
-  
+
   Future<void> _updateProfile() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
       _successMessage = null;
     });
-    
+
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
-      
+
       bool success = await authService.updateProfile(
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
-        phoneNumber: _phoneController.text.trim().isNotEmpty 
-            ? _phoneController.text.trim() 
-            : null,
+        phoneNumber:
+            _phoneController.text.trim().isNotEmpty
+                ? _phoneController.text.trim()
+                : null,
       );
-      
+
       if (success) {
         setState(() {
           _successMessage = 'Profile updated successfully!';
         });
       } else {
         setState(() {
-          _errorMessage = authService.error ?? 'Failed to update profile. Please try again.';
+          _errorMessage =
+              authService.error ??
+              'Failed to update profile. Please try again.';
         });
       }
     } catch (e) {
@@ -90,32 +92,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
     }
   }
-  
+
   Future<void> _resetPassword() async {
     final authService = Provider.of<AuthService>(context, listen: false);
     final user = authService.currentUser;
-    
+
     if (user == null) return;
-    
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
       _successMessage = null;
     });
-    
+
     try {
       bool success = await authService.resetPassword(user.email);
-      
+
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Password reset email sent. Please check your inbox.'),
+            content: Text(
+              'Password reset email sent. Please check your inbox.',
+            ),
             backgroundColor: AppColors.success,
           ),
         );
       } else {
         setState(() {
-          _errorMessage = authService.error ?? 'Failed to send password reset email. Please try again.';
+          _errorMessage =
+              authService.error ??
+              'Failed to send password reset email. Please try again.';
         });
       }
     } catch (e) {
@@ -128,27 +134,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
     final user = authService.currentUser;
-    
+
     if (user == null) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Profile'),
-        ),
-        body: const Center(
-          child: CircularProgressIndicator(),
-        ),
+        appBar: AppBar(title: const Text('Profile')),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
-    
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Profile'),
-      ),
+      appBar: AppBar(title: const Text('Edit Profile')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -189,9 +189,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Edit Profile Form
             Form(
               key: _formKey,
@@ -200,14 +200,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   const Text(
                     'Personal Information',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // First Name
                   TextFormField(
                     controller: _firstNameController,
@@ -218,9 +215,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     textCapitalization: TextCapitalization.words,
                     validator: Validators.validateName,
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Last Name
                   TextFormField(
                     controller: _lastNameController,
@@ -231,9 +228,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     textCapitalization: TextCapitalization.words,
                     validator: Validators.validateName,
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Phone (Optional)
                   TextFormField(
                     controller: _phoneController,
@@ -244,7 +241,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     keyboardType: TextInputType.phone,
                     validator: Validators.validatePhone,
                   ),
-                  
+
                   // Error Message
                   if (_errorMessage != null)
                     Container(
@@ -258,7 +255,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                  
+
                   // Success Message
                   if (_successMessage != null)
                     Container(
@@ -272,29 +269,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Update Profile Button
-                  CustomButton(
-                    text: 'Update Profile',
-                    isLoading: _isLoading,
-                    onPressed: _updateProfile,
+                  SizedBox(
+                    width: 150,
+                    child: CustomButton(
+                      text: 'Update Profile',
+                      isLoading: _isLoading,
+                      onPressed: _updateProfile,
+                    ),
                   ),
-                  
+
                   const SizedBox(height: 32),
-                  
+
                   // Security Section
                   const Text(
                     'Security',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Reset Password Button
                   CustomButton(
                     text: 'Reset Password',
