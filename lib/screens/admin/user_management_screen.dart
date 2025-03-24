@@ -16,37 +16,38 @@ class UserManagementScreen extends StatefulWidget {
   State<UserManagementScreen> createState() => _UserManagementScreenState();
 }
 
-class _UserManagementScreenState extends State<UserManagementScreen> with SingleTickerProviderStateMixin {
+class _UserManagementScreenState extends State<UserManagementScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   List<UserModel> _students = [];
   List<UserModel> _teachers = [];
   List<UserModel> _dispatchUsers = [];
   List<UserModel> _adminUsers = [];
-  
+
   bool _isLoadingStudents = true;
   bool _isLoadingTeachers = true;
   bool _isLoadingDispatch = true;
   bool _isLoadingAdmins = true;
-  
+
   String? _errorMessage;
   String _searchQuery = '';
-  
+
   final TextEditingController _searchController = TextEditingController();
-  
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     _loadUsers();
   }
-  
+
   @override
   void dispose() {
     _searchController.dispose();
     _tabController.dispose();
     super.dispose();
   }
-  
+
   Future<void> _loadUsers() async {
     await Future.wait([
       _loadStudents(),
@@ -55,15 +56,18 @@ class _UserManagementScreenState extends State<UserManagementScreen> with Single
       _loadAdminUsers(),
     ]);
   }
-  
+
   Future<void> _loadStudents() async {
     setState(() {
       _isLoadingStudents = true;
       _errorMessage = null;
     });
-    
+
     try {
-      final databaseService = Provider.of<DatabaseService>(context, listen: false);
+      final databaseService = Provider.of<DatabaseService>(
+        context,
+        listen: false,
+      );
       _students = await databaseService.getAllStudents();
     } catch (e) {
       _errorMessage = 'Error loading students: $e';
@@ -73,14 +77,17 @@ class _UserManagementScreenState extends State<UserManagementScreen> with Single
       });
     }
   }
-  
+
   Future<void> _loadTeachers() async {
     setState(() {
       _isLoadingTeachers = true;
     });
-    
+
     try {
-      final databaseService = Provider.of<DatabaseService>(context, listen: false);
+      final databaseService = Provider.of<DatabaseService>(
+        context,
+        listen: false,
+      );
       _teachers = await databaseService.getAllTeachers();
     } catch (e) {
       print('Error loading teachers: $e');
@@ -90,16 +97,19 @@ class _UserManagementScreenState extends State<UserManagementScreen> with Single
       });
     }
   }
-  
+
   Future<void> _loadDispatchUsers() async {
     setState(() {
       _isLoadingDispatch = true;
     });
-    
+
     try {
-      // TODO: Replace with actual implementation once available
-      // For now, we'll just simulate an empty list
-      _dispatchUsers = [];
+      final databaseService = Provider.of<DatabaseService>(
+        context,
+        listen: false,
+      );
+      _dispatchUsers = await databaseService.getAllDispatchers();
+      // _dispatchUsers = [];
     } catch (e) {
       print('Error loading dispatch users: $e');
     } finally {
@@ -108,16 +118,19 @@ class _UserManagementScreenState extends State<UserManagementScreen> with Single
       });
     }
   }
-  
+
   Future<void> _loadAdminUsers() async {
     setState(() {
       _isLoadingAdmins = true;
     });
-    
+
     try {
-      // TODO: Replace with actual implementation once available
-      // For now, we'll just simulate an empty list
-      _adminUsers = [];
+      final databaseService = Provider.of<DatabaseService>(
+        context,
+        listen: false,
+      );
+      _adminUsers = await databaseService.getAllAdmins();
+      // _adminUsers = [];
     } catch (e) {
       print('Error loading admin users: $e');
     } finally {
@@ -126,21 +139,26 @@ class _UserManagementScreenState extends State<UserManagementScreen> with Single
       });
     }
   }
-  
+
   Future<void> _updateUserStatus(UserModel user, bool isActive) async {
     try {
-      final databaseService = Provider.of<DatabaseService>(context, listen: false);
-      
+      final databaseService = Provider.of<DatabaseService>(
+        context,
+        listen: false,
+      );
+
       bool success = await databaseService.updateUserStatus(user.id, isActive);
-      
+
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('User ${isActive ? 'activated' : 'deactivated'} successfully'),
+            content: Text(
+              'User ${isActive ? 'activated' : 'deactivated'} successfully',
+            ),
             backgroundColor: isActive ? AppColors.success : AppColors.warning,
           ),
         );
-        
+
         // Refresh the user list based on the current tab
         switch (_tabController.index) {
           case 0:
@@ -166,20 +184,17 @@ class _UserManagementScreenState extends State<UserManagementScreen> with Single
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: AppColors.error,
-        ),
+        SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error),
       );
     }
   }
-  
+
   Future<void> _resetUserPassword(UserModel user) async {
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
-      
+
       bool success = await authService.resetPassword(user.email);
-      
+
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -190,21 +205,20 @@ class _UserManagementScreenState extends State<UserManagementScreen> with Single
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to send password reset email: ${authService.error}'),
+            content: Text(
+              'Failed to send password reset email: ${authService.error}',
+            ),
             backgroundColor: AppColors.error,
           ),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: AppColors.error,
-        ),
+        SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.error),
       );
     }
   }
-  
+
   void _navigateToAddUser(String role) {
     // TODO: Implement navigation to add user screen
     ScaffoldMessenger.of(context).showSnackBar(
@@ -214,7 +228,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> with Single
       ),
     );
   }
-  
+
   void _navigateToEditUser(UserModel user) {
     // TODO: Implement navigation to edit user screen
     ScaffoldMessenger.of(context).showSnackBar(
@@ -224,19 +238,20 @@ class _UserManagementScreenState extends State<UserManagementScreen> with Single
       ),
     );
   }
-  
+
   List<UserModel> _getFilteredUsers(List<UserModel> users) {
     if (_searchQuery.isEmpty) {
       return users;
     }
-    
+
     return users.where((user) {
       return user.fullName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             user.email.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             (user.phoneNumber != null && user.phoneNumber!.contains(_searchQuery));
+          user.email.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          (user.phoneNumber != null &&
+              user.phoneNumber!.contains(_searchQuery));
     }).toList();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -253,24 +268,25 @@ class _UserManagementScreenState extends State<UserManagementScreen> with Single
             decoration: InputDecoration(
               hintText: 'Search users by name or email',
               prefixIcon: const Icon(Icons.search),
-              suffixIcon: _searchQuery.isNotEmpty 
-                  ? IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _searchController.clear();
-                        setState(() {
-                          _searchQuery = '';
-                        });
-                      },
-                    )
-                  : null,
+              suffixIcon:
+                  _searchQuery.isNotEmpty
+                      ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() {
+                            _searchQuery = '';
+                          });
+                        },
+                      )
+                      : null,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
           ),
         ),
-        
+
         Container(
           color: AppColors.adminColor,
           child: TabBar(
@@ -286,7 +302,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> with Single
             ],
           ),
         ),
-        
+
         Expanded(
           child: TabBarView(
             controller: _tabController,
@@ -329,7 +345,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> with Single
       ],
     );
   }
-  
+
   Widget _buildUserList({
     required List<UserModel> users,
     required bool isLoading,
@@ -341,36 +357,26 @@ class _UserManagementScreenState extends State<UserManagementScreen> with Single
     if (isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
-    
+
     if (_errorMessage != null) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline,
-              size: 64,
-              color: AppColors.error,
-            ),
+            const Icon(Icons.error_outline, size: 64, color: AppColors.error),
             const SizedBox(height: 16),
             Text(
               _errorMessage!,
-              style: const TextStyle(
-                color: AppColors.error,
-                fontSize: 16,
-              ),
+              style: const TextStyle(color: AppColors.error, fontSize: 16),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _loadUsers,
-              child: const Text('Retry'),
-            ),
+            ElevatedButton(onPressed: _loadUsers, child: const Text('Retry')),
           ],
         ),
       );
     }
-    
+
     if (users.isEmpty) {
       return Center(
         child: Column(
@@ -392,12 +398,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> with Single
             ),
             const SizedBox(height: 8),
             Text(
-              _searchQuery.isNotEmpty 
+              _searchQuery.isNotEmpty
                   ? 'Try adjusting your search query'
                   : 'Add new users to get started',
-              style: const TextStyle(
-                color: AppColors.textSecondary,
-              ),
+              style: const TextStyle(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -422,7 +426,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> with Single
         ),
       );
     }
-    
+
     return Column(
       children: [
         Padding(
@@ -432,9 +436,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> with Single
               Expanded(
                 child: Text(
                   '${users.length} ${roleName.toLowerCase()}${users.length == 1 ? '' : 's'} found',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
               ElevatedButton.icon(
@@ -481,7 +483,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> with Single
                         ),
                       ),
                       const SizedBox(width: 16),
-                      
+
                       // User info
                       Expanded(
                         child: Column(
@@ -500,7 +502,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> with Single
                                 color: AppColors.textSecondary,
                               ),
                             ),
-                            if (user.phoneNumber != null && user.phoneNumber!.isNotEmpty)
+                            if (user.phoneNumber != null &&
+                                user.phoneNumber!.isNotEmpty)
                               Text(
                                 'Phone: ${user.phoneNumber}',
                                 style: const TextStyle(
@@ -511,7 +514,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> with Single
                           ],
                         ),
                       ),
-                      
+
                       // Status indicator and menu
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
@@ -522,9 +525,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> with Single
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: user.isActive 
-                                  ? AppColors.success.withOpacity(0.1) 
-                                  : AppColors.error.withOpacity(0.1),
+                              color:
+                                  user.isActive
+                                      ? AppColors.success.withOpacity(0.1)
+                                      : AppColors.error.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
@@ -532,9 +536,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> with Single
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: user.isActive 
-                                    ? AppColors.success 
-                                    : AppColors.error,
+                                color:
+                                    user.isActive
+                                        ? AppColors.success
+                                        : AppColors.error,
                               ),
                             ),
                           ),
@@ -559,87 +564,123 @@ class _UserManagementScreenState extends State<UserManagementScreen> with Single
                                   // Show confirmation dialog
                                   showDialog(
                                     context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: const Text('Confirm Delete'),
-                                      content: Text('Are you sure you want to delete ${user.fullName}? This action cannot be undone.'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(context),
-                                          child: const Text('Cancel'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                            // TODO: Implement delete user functionality
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(
-                                                content: Text('Delete user functionality will be implemented'),
-                                                backgroundColor: AppColors.info,
+                                    builder:
+                                        (context) => AlertDialog(
+                                          title: const Text('Confirm Delete'),
+                                          content: Text(
+                                            'Are you sure you want to delete ${user.fullName}? This action cannot be undone.',
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed:
+                                                  () => Navigator.pop(context),
+                                              child: const Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                                // TODO: Implement delete user functionality
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      'Delete user functionality will be implemented',
+                                                    ),
+                                                    backgroundColor:
+                                                        AppColors.info,
+                                                  ),
+                                                );
+                                              },
+                                              child: const Text(
+                                                'Delete',
+                                                style: TextStyle(
+                                                  color: AppColors.error,
+                                                ),
                                               ),
-                                            );
-                                          },
-                                          child: const Text('Delete', style: TextStyle(color: AppColors.error)),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
                                   );
                                   break;
                               }
                             },
-                            itemBuilder: (context) => [
-                              const PopupMenuItem(
-                                value: 'edit',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.edit, size: 18),
-                                    SizedBox(width: 8),
-                                    Text('Edit'),
-                                  ],
-                                ),
-                              ),
-                              if (!user.isActive)
-                                const PopupMenuItem(
-                                  value: 'activate',
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.check_circle, size: 18, color: AppColors.success),
-                                      SizedBox(width: 8),
-                                      Text('Activate'),
-                                    ],
+                            itemBuilder:
+                                (context) => [
+                                  const PopupMenuItem(
+                                    value: 'edit',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.edit, size: 18),
+                                        SizedBox(width: 8),
+                                        Text('Edit'),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              if (user.isActive)
-                                const PopupMenuItem(
-                                  value: 'deactivate',
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.block, size: 18, color: AppColors.warning),
-                                      SizedBox(width: 8),
-                                      Text('Deactivate'),
-                                    ],
+                                  if (!user.isActive)
+                                    const PopupMenuItem(
+                                      value: 'activate',
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.check_circle,
+                                            size: 18,
+                                            color: AppColors.success,
+                                          ),
+                                          SizedBox(width: 8),
+                                          Text('Activate'),
+                                        ],
+                                      ),
+                                    ),
+                                  if (user.isActive)
+                                    const PopupMenuItem(
+                                      value: 'deactivate',
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.block,
+                                            size: 18,
+                                            color: AppColors.warning,
+                                          ),
+                                          SizedBox(width: 8),
+                                          Text('Deactivate'),
+                                        ],
+                                      ),
+                                    ),
+                                  const PopupMenuItem(
+                                    value: 'reset',
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.lock_reset,
+                                          size: 18,
+                                          color: AppColors.info,
+                                        ),
+                                        SizedBox(width: 8),
+                                        Text('Reset Password'),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              const PopupMenuItem(
-                                value: 'reset',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.lock_reset, size: 18, color: AppColors.info),
-                                    SizedBox(width: 8),
-                                    Text('Reset Password'),
-                                  ],
-                                ),
-                              ),
-                              const PopupMenuItem(
-                                value: 'delete',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.delete, size: 18, color: AppColors.error),
-                                    SizedBox(width: 8),
-                                    Text('Delete', style: TextStyle(color: AppColors.error)),
-                                  ],
-                                ),
-                              ),
-                            ],
+                                  const PopupMenuItem(
+                                    value: 'delete',
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.delete,
+                                          size: 18,
+                                          color: AppColors.error,
+                                        ),
+                                        SizedBox(width: 8),
+                                        Text(
+                                          'Delete',
+                                          style: TextStyle(
+                                            color: AppColors.error,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                           ),
                         ],
                       ),

@@ -20,57 +20,59 @@ class AdminHomeScreen extends StatefulWidget {
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
   int _selectedIndex = 0;
   final List<String> _pages = ['Dashboard', 'Users', 'Settings'];
-  
+
   // Dashboard stats
   int _activeFlightsCount = 0;
   int _studentCount = 0;
   int _teacherCount = 0;
   int _dispatchCount = 0;
   int _totalFlightLogs = 0;
-  
+
   bool _isLoading = true;
   String? _errorMessage;
-  
+
   @override
   void initState() {
     super.initState();
     _loadDashboardData();
   }
-  
+
   Future<void> _loadDashboardData() async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
-    
+
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
-      final databaseService = Provider.of<DatabaseService>(context, listen: false);
-      
+      final databaseService = Provider.of<DatabaseService>(
+        context,
+        listen: false,
+      );
+
       if (authService.currentUser != null) {
         databaseService.initialize(
           authService.currentUser!.id,
           authService.currentUser!.role,
         );
       }
-      
+
       // Get active flights
       final activeFlights = await databaseService.getActiveFlightLogs().first;
       _activeFlightsCount = activeFlights.length;
-      
+
       // Get user counts
       final students = await databaseService.getAllStudents();
       _studentCount = students.length;
-      
+
       final teachers = await databaseService.getAllTeachers();
       _teacherCount = teachers.length;
-      
-      // TODO: Implement getting dispatch users once we have that method
-      _dispatchCount = 0;
-      
+
+      final dispatchs = await databaseService.getAllDispatchers();
+      _dispatchCount = dispatchs.length;
+
       // TODO: Implement getting total flight logs once we have that method
       _totalFlightLogs = 0;
-      
     } catch (e) {
       _errorMessage = 'Error loading dashboard data: $e';
     } finally {
@@ -79,12 +81,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       });
     }
   }
-  
+
   Future<void> _signOut() async {
     final authService = Provider.of<AuthService>(context, listen: false);
-    
+
     await authService.signOut();
-    
+
     // Navigate to login screen
     Navigator.pushAndRemoveUntil(
       context,
@@ -92,7 +94,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       (route) => false,
     );
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -104,10 +106,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               icon: const Icon(Icons.refresh),
               onPressed: _loadDashboardData,
             ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _signOut,
-          ),
+          IconButton(icon: const Icon(Icons.logout), onPressed: _signOut),
         ],
       ),
       body: IndexedStack(
@@ -145,29 +144,22 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       ),
     );
   }
-  
+
   Widget _buildDashboardPage() {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
-    
+
     if (_errorMessage != null) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline,
-              size: 64,
-              color: AppColors.error,
-            ),
+            const Icon(Icons.error_outline, size: 64, color: AppColors.error),
             const SizedBox(height: 16),
             Text(
               _errorMessage!,
-              style: const TextStyle(
-                color: AppColors.error,
-                fontSize: 16,
-              ),
+              style: const TextStyle(color: AppColors.error, fontSize: 16),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -179,7 +171,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         ),
       );
     }
-    
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -197,7 +189,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 gradient: LinearGradient(
-                  colors: [AppColors.adminColor, AppColors.adminColor.withOpacity(0.7)],
+                  colors: [
+                    AppColors.adminColor,
+                    AppColors.adminColor.withOpacity(0.7),
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -216,10 +211,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                   const SizedBox(height: 8),
                   Text(
                     'Today is ${DateFormat('EEEE, MMMM d, yyyy').format(DateTime.now())}',
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                   const SizedBox(height: 16),
                   Container(
@@ -243,20 +235,17 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               ),
             ),
           ),
-          
+
           const SizedBox(height: 20),
-          
+
           // Stats Grid
           const Text(
             'System Statistics',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // User stats
           Row(
             children: [
@@ -279,9 +268,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           Row(
             children: [
               Expanded(
@@ -303,20 +292,17 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 20),
-          
+
           // Quick actions
           const Text(
             'Quick Actions',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           Card(
             elevation: 2,
             shape: RoundedRectangleBorder(
@@ -329,7 +315,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                   _buildActionItem(
                     icon: Icons.person_add,
                     title: 'Add New User',
-                    subtitle: 'Create a new student, teacher, or dispatch account',
+                    subtitle:
+                        'Create a new student, teacher, or dispatch account',
                     onTap: () {
                       // TODO: Navigate to add user screen
                     },
@@ -352,7 +339,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                   _buildActionItem(
                     icon: Icons.location_on,
                     title: 'Update School Location',
-                    subtitle: 'Change the school coordinates for proximity alerts',
+                    subtitle:
+                        'Change the school coordinates for proximity alerts',
                     onTap: () {
                       // TODO: Navigate to school location screen
                     },
@@ -376,11 +364,11 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       ),
     );
   }
-  
+
   Widget _buildUsersPage() {
     return const UserManagementScreen();
   }
-  
+
   Widget _buildSettingsPage() {
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -389,14 +377,11 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         children: [
           const Text(
             'System Settings',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           Card(
             elevation: 2,
             shape: RoundedRectangleBorder(
@@ -451,19 +436,16 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           const Text(
             'System Information',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           Card(
             elevation: 2,
             shape: RoundedRectangleBorder(
@@ -478,10 +460,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     value: AppConstants.appVersion,
                   ),
                   const SizedBox(height: 12),
-                  _buildInfoRow(
-                    title: 'Database',
-                    value: 'Firebase Firestore',
-                  ),
+                  _buildInfoRow(title: 'Database', value: 'Firebase Firestore'),
                   const SizedBox(height: 12),
                   _buildInfoRow(
                     title: 'Authentication',
@@ -495,7 +474,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       ),
     );
   }
-  
+
   Widget _buildStatCard({
     required String title,
     required String value,
@@ -504,9 +483,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -517,9 +494,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
-                  ),
+                  style: const TextStyle(color: AppColors.textSecondary),
                 ),
                 Icon(icon, color: color),
               ],
@@ -527,17 +502,14 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             const SizedBox(height: 8),
             Text(
               value,
-              style: const TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
           ],
         ),
       ),
     );
   }
-  
+
   Widget _buildActionItem({
     required IconData icon,
     required String title,
@@ -591,7 +563,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       ),
     );
   }
-  
+
   Widget _buildSettingsItem({
     required IconData icon,
     required String title,
@@ -613,26 +585,13 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       onTap: onTap,
     );
   }
-  
-  Widget _buildInfoRow({
-    required String title,
-    required String value,
-  }) {
+
+  Widget _buildInfoRow({required String title, required String value}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            color: AppColors.textSecondary,
-          ),
-        ),
-        Text(
-          value,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        Text(title, style: const TextStyle(color: AppColors.textSecondary)),
+        Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
       ],
     );
   }
