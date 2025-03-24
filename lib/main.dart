@@ -3,6 +3,9 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:navlog/constants/app_constants.dart';
+import 'package:navlog/providers/flight_overview_provider.dart';
+import 'package:navlog/providers/schedule_provider.dart';
+import 'package:navlog/providers/wallet_provider.dart';
 import 'package:navlog/screens/admin/admin_home_screen.dart';
 import 'package:navlog/screens/dispatch/dispatch_home_screen.dart';
 import 'package:navlog/screens/student/student_home_screen.dart';
@@ -86,6 +89,12 @@ class MyApp extends StatelessWidget {
 
         // Notification Service
         ChangeNotifierProvider(create: (_) => NotificationService()),
+
+        ChangeNotifierProvider(create: (_) => ScheduleProvider()),
+
+        ChangeNotifierProvider(create: (_) => WalletProvider()),
+
+        ChangeNotifierProvider(create: (_) => FlightOverviewProvider()),
 
         // // Flight Log Service - depends on other services
         // ChangeNotifierProxyProvider3<

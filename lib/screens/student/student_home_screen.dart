@@ -1,5 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:navlog/screens/student/flight_overview_screen.dart';
+import 'package:navlog/screens/student/my_schedule_screen.dart';
+import 'package:navlog/screens/student/student_wallet_screen.dart';
 import '../../constants/colors.dart';
 import '../../location_utils.dart';
 import '../../login_screen.dart';
@@ -26,7 +29,13 @@ class StudentHomeScreen extends StatefulWidget {
 
 class _StudentHomeScreenState extends State<StudentHomeScreen> {
   int _selectedIndex = 0;
-  final List<String> _pages = ['Home', 'History', 'Profile'];
+  final List<String> _pages = [
+    'Home',
+    'My Schedule',
+    'My Flights',
+    'Wallet',
+    'Profile',
+  ];
   bool _locationPermissionsGranted = false;
   String? _locationErrorMessage;
   Timer? _refreshTimer;
@@ -245,6 +254,96 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                 ),
               ),
 
+            // Student Dashboard Overview
+            Card(
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Flight Training Status',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Progress indicators
+                    LinearProgressIndicator(
+                      value: 0.65,
+                      backgroundColor: Colors.grey[200],
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '65% Complete',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        Text(
+                          '35 of 50 hours',
+                          style: TextStyle(color: AppColors.textSecondary),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Stats grid
+                    Row(
+                      children: [
+                        _buildStatCard(
+                          icon: Icons.flight_takeoff,
+                          title: 'Total Flights',
+                          value: '24',
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildStatCard(
+                          icon: Icons.access_time,
+                          title: 'Flight Hours',
+                          value: '35h',
+                          color: AppColors.accent,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        _buildStatCard(
+                          icon: Icons.calendar_today,
+                          title: 'Next Flight',
+                          value: 'Today, 3PM',
+                          color: Colors.green,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildStatCard(
+                          icon: Icons.account_balance_wallet,
+                          title: 'Balance',
+                          value: '\$350.00',
+                          color: Colors.indigo,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
             // Current Flight Status Card
             if (flightLogService.hasActiveFlightLog)
               Card(
@@ -400,45 +499,6 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                                     ),
                                   ],
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                      // Show distance from school if available
-                      if (locationService.distanceFromSchool != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.school_outlined,
-                                color: Colors.white70,
-                              ),
-                              const SizedBox(width: 8),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Distance from School',
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                  Text(
-                                    LocationUtils.formatDistance(
-                                      locationService.distanceFromSchool!,
-                                    ),
-                                    style: TextStyle(
-                                      color:
-                                          locationService.isNearSchool
-                                              ? Colors.white
-                                              : AppColors.warning,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
                               ),
                             ],
                           ),
@@ -637,213 +697,326 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     );
   }
 
-  Widget _buildHistoryPage() {
-    final flightLogService = Provider.of<FlightLogService>(context);
-
-    return SizedBox(
-      height: MediaQuery.sizeOf(context).height,
-      width: MediaQuery.sizeOf(context).width,
-      child: SingleChildScrollView(
-        child: FutureBuilder<List<FlightLogModel>>(
-          future: flightLogService.getStudentFlightHistory(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            if (snapshot.hasError) {
-              return Center(
-                child: Text(
-                  'Error loading flight history: ${snapshot.error}',
-                  style: const TextStyle(color: AppColors.error),
-                ),
-              );
-            }
-
-            final flightLogs = snapshot.data ?? [];
-
-            if (flightLogs.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.history,
-                      size: 64,
-                      color: AppColors.textSecondary.withOpacity(0.5),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'No Flight History',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Your completed flights will appear here.',
-                      style: TextStyle(color: AppColors.textSecondary),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            return ListView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              padding: const EdgeInsets.all(16),
-              itemCount: flightLogs.length,
-              itemBuilder: (context, index) {
-                final flightLog = flightLogs[index];
-                final isActive = flightLog.status == 'in-progress';
-
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: isActive ? 4 : 2,
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (context) =>
-                                  FlightDetailScreen(flightLogId: flightLog.id),
-                        ),
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        border:
-                            isActive
-                                ? Border.all(color: AppColors.primary, width: 2)
-                                : null,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  DateFormat(
-                                    'MMM dd, yyyy',
-                                  ).format(flightLog.startTime),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color:
-                                        isActive
-                                            ? AppColors.primary.withOpacity(0.1)
-                                            : AppColors.success.withOpacity(
-                                              0.1,
-                                            ),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    isActive ? 'In Progress' : 'Completed',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color:
-                                          isActive
-                                              ? AppColors.primary
-                                              : AppColors.success,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                _buildFlightInfoItem(
-                                  icon: Icons.access_time,
-                                  title: 'Start Time',
-                                  value: DateFormat(
-                                    'hh:mm a',
-                                  ).format(flightLog.startTime),
-                                ),
-                                const SizedBox(width: 24),
-                                _buildFlightInfoItem(
-                                  icon: Icons.timer,
-                                  title: 'Duration',
-                                  value: flightLog.durationString,
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                _buildFlightInfoItem(
-                                  icon: Icons.place,
-                                  title: 'Locations',
-                                  value:
-                                      '${flightLog.flightPath.length} points',
-                                ),
-                                const SizedBox(width: 24),
-                                if (flightLog.notes != null &&
-                                    flightLog.notes!.isNotEmpty)
-                                  _buildFlightInfoItem(
-                                    icon: Icons.notes,
-                                    title: 'Notes',
-                                    value: 'Available',
-                                  ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
+  Widget _buildStatCard({
+    required IconData icon,
+    required String title,
+    required String value,
+    required Color color,
+  }) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: color.withOpacity(0.3)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 28),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: color.withOpacity(0.8),
                     ),
                   ),
-                );
-              },
-            );
-          },
+                  Text(
+                    value,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: color,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildFlightInfoItem({
+  Widget _buildMySchedulePage() {
+    return const MyScheduleScreen();
+  }
+
+  Widget _buildMyFlightsPage() {
+    return MyFlightsOverviewScreen();
+    // final flightLogService = Provider.of<FlightLogService>(context);
+
+    // return SizedBox(
+    //   height: MediaQuery.sizeOf(context).height,
+    //   width: MediaQuery.sizeOf(context).width,
+    //   child: SingleChildScrollView(
+    //     child: FutureBuilder<List<FlightLogModel>>(
+    //       future: flightLogService.getStudentFlightHistory(),
+    //       builder: (context, snapshot) {
+    //         if (snapshot.connectionState == ConnectionState.waiting) {
+    //           return const Center(child: CircularProgressIndicator());
+    //         }
+
+    //         if (snapshot.hasError) {
+    //           return Center(
+    //             child: Text(
+    //               'Error loading flight history: ${snapshot.error}',
+    //               style: const TextStyle(color: AppColors.error),
+    //             ),
+    //           );
+    //         }
+
+    //         final flightLogs = snapshot.data ?? [];
+
+    //         if (flightLogs.isEmpty) {
+    //           return Center(
+    //             child: Column(
+    //               mainAxisAlignment: MainAxisAlignment.start,
+    //               children: [
+    //                 Icon(
+    //                   Icons.flight,
+    //                   size: 64,
+    //                   color: AppColors.textSecondary.withOpacity(0.5),
+    //                 ),
+    //                 const SizedBox(height: 16),
+    //                 const Text(
+    //                   'No Flight History',
+    //                   style: TextStyle(
+    //                     fontSize: 18,
+    //                     fontWeight: FontWeight.bold,
+    //                     color: AppColors.textPrimary,
+    //                   ),
+    //                 ),
+    //                 const SizedBox(height: 8),
+    //                 const Text(
+    //                   'Your flights will appear here once you complete them.',
+    //                   style: TextStyle(color: AppColors.textSecondary),
+    //                 ),
+    //               ],
+    //             ),
+    //           );
+    //         }
+
+    //         return ListView.builder(
+    //           physics: const NeverScrollableScrollPhysics(),
+    //           shrinkWrap: true,
+    //           padding: const EdgeInsets.all(16),
+    //           itemCount: flightLogs.length,
+    //           itemBuilder: (context, index) {
+    //             final flightLog = flightLogs[index];
+    //             final isActive = flightLog.status == 'in-progress';
+
+    //             return Card(
+    //               margin: const EdgeInsets.only(bottom: 12),
+    //               shape: RoundedRectangleBorder(
+    //                 borderRadius: BorderRadius.circular(12),
+    //               ),
+    //               elevation: isActive ? 4 : 2,
+    //               child: InkWell(
+    //                 onTap: () {
+    //                   Navigator.push(
+    //                     context,
+    //                     MaterialPageRoute(
+    //                       builder:
+    //                           (context) =>
+    //                               FlightDetailScreen(flightLogId: flightLog.id),
+    //                     ),
+    //                   );
+    //                 },
+    //                 borderRadius: BorderRadius.circular(12),
+    //                 child: Container(
+    //                   decoration: BoxDecoration(
+    //                     borderRadius: BorderRadius.circular(12),
+    //                     border:
+    //                         isActive
+    //                             ? Border.all(color: AppColors.primary, width: 2)
+    //                             : null,
+    //                   ),
+    //                   child: Padding(
+    //                     padding: const EdgeInsets.all(16),
+    //                     child: Column(
+    //                       crossAxisAlignment: CrossAxisAlignment.start,
+    //                       children: [
+    //                         Row(
+    //                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //                           children: [
+    //                             Text(
+    //                               DateFormat(
+    //                                 'MMM dd, yyyy',
+    //                               ).format(flightLog.startTime),
+    //                               style: const TextStyle(
+    //                                 fontWeight: FontWeight.bold,
+    //                                 fontSize: 16,
+    //                               ),
+    //                             ),
+    //                             Container(
+    //                               padding: const EdgeInsets.symmetric(
+    //                                 horizontal: 8,
+    //                                 vertical: 4,
+    //                               ),
+    //                               decoration: BoxDecoration(
+    //                                 color:
+    //                                     isActive
+    //                                         ? AppColors.primary.withOpacity(0.1)
+    //                                         : AppColors.success.withOpacity(
+    //                                           0.1,
+    //                                         ),
+    //                                 borderRadius: BorderRadius.circular(20),
+    //                               ),
+    //                               child: Text(
+    //                                 isActive ? 'In Progress' : 'Completed',
+    //                                 style: TextStyle(
+    //                                   fontSize: 12,
+    //                                   fontWeight: FontWeight.bold,
+    //                                   color:
+    //                                       isActive
+    //                                           ? AppColors.primary
+    //                                           : AppColors.success,
+    //                                 ),
+    //                               ),
+    //                             ),
+    //                           ],
+    //                         ),
+    //                         const SizedBox(height: 12),
+    //                         Row(
+    //                           children: [
+    //                             _buildFlightInfoItem(
+    //                               icon: Icons.access_time,
+    //                               title: 'Start Time',
+    //                               value: DateFormat(
+    //                                 'hh:mm a',
+    //                               ).format(flightLog.startTime),
+    //                             ),
+    //                             const SizedBox(width: 24),
+    //                             _buildFlightInfoItem(
+    //                               icon: Icons.timer,
+    //                               title: 'Duration',
+    //                               value: flightLog.durationString,
+    //                             ),
+    //                           ],
+    //                         ),
+    //                         const SizedBox(height: 12),
+    //                         Row(
+    //                           children: [
+    //                             _buildFlightInfoItem(
+    //                               icon: Icons.place,
+    //                               title: 'Locations',
+    //                               value:
+    //                                   '${flightLog.flightPath.length} points',
+    //                             ),
+    //                             const SizedBox(width: 24),
+    //                             if (flightLog.notes != null &&
+    //                                 flightLog.notes!.isNotEmpty)
+    //                               _buildFlightInfoItem(
+    //                                 icon: Icons.notes,
+    //                                 title: 'Notes',
+    //                                 value: 'Available',
+    //                               ),
+    //                           ],
+    //                         ),
+    //                       ],
+    //                     ),
+    //                   ),
+    //                 ),
+    //               ),
+    //             );
+    //           },
+    //         );
+    //       },
+    //     ),
+    //   ),
+    // );
+  }
+
+  Widget _buildWalletPage() {
+    return const WalletScreen();
+  }
+
+  Widget _buildTransactionItem({
+    required String title,
+    required String date,
+    required String amount,
+    required bool isDebit,
+  }) {
+    return ListTile(
+      title: Text(title),
+      subtitle: Text(date),
+      trailing: Text(
+        amount,
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: isDebit ? Colors.red : Colors.green,
+        ),
+      ),
+      leading: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: (isDebit ? Colors.red : Colors.green).withOpacity(0.1),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          isDebit ? Icons.remove : Icons.add,
+          color: isDebit ? Colors.red : Colors.green,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentMethodItem({
     required IconData icon,
     required String title,
-    required String value,
+    required String subtitle,
+    required bool isDefault,
   }) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: AppColors.textSecondary),
-        const SizedBox(width: 4),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: AppColors.primary.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: AppColors.primary),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (isDefault)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppColors.success.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Text(
+              'Default',
+              style: TextStyle(
+                color: AppColors.success,
                 fontSize: 12,
-                color: AppColors.textSecondary,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
-          ],
-        ),
+          ),
       ],
     );
   }
@@ -1065,6 +1238,32 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     );
   }
 
+  Widget _buildFlightInfoItem({
+    required IconData icon,
+    required String title,
+    required String value,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: AppColors.textSecondary),
+        const SizedBox(width: 4),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ],
+    );
+  }
+
   String _formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
@@ -1088,7 +1287,13 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
       ),
       body: IndexedStack(
         index: _selectedIndex,
-        children: [_buildHomePage(), _buildHistoryPage(), _buildProfilePage()],
+        children: [
+          _buildHomePage(),
+          _buildMySchedulePage(),
+          _buildMyFlightsPage(),
+          _buildWalletPage(),
+          _buildProfilePage(),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
@@ -1097,6 +1302,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
             _selectedIndex = index;
           });
         },
+        type: BottomNavigationBarType.fixed, // Needed for more than 3 items
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
@@ -1104,9 +1310,19 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.history_outlined),
-            activeIcon: Icon(Icons.history),
-            label: 'History',
+            icon: Icon(Icons.calendar_month_outlined),
+            activeIcon: Icon(Icons.calendar_month),
+            label: 'Schedule',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.flight_outlined),
+            activeIcon: Icon(Icons.flight),
+            label: 'Flights',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_balance_wallet_outlined),
+            activeIcon: Icon(Icons.account_balance_wallet),
+            label: 'Wallet',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
